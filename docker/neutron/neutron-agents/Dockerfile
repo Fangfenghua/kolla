@@ -36,4 +36,7 @@ RUN mkdir -p /var/log/supervisor/
 ADD supervisord.conf /etc/
 
 # Start supervisor
-CMD ["/usr/bin/supervisord"]
+COPY ./start.sh  /start.sh
+# Start supervisor
+CMD ["/start.sh"]
+
