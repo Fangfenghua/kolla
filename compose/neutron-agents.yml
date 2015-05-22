@@ -1,3 +1,37 @@
+ovsdbserverdata:
+   image: kollaglue/centos-rdo-ovs-dbserver-data:kilo
+   name: ovsdbserverdata
+   restart: on-failure
+
+ovsdbserver:
+   image: kollaglue/centos-rdo-ovs-dbserver:kilo
+   name: ovsdbserver
+   restart: always
+   net: "host"
+   privileged: true
+   volumes_from:
+     - ovsdbserverdata
+
+ovsvswitchd:
+   image: kollaglue/centos-rdo-ovs-vswitchd:kilo
+   name: ovsvswitchd
+   restart: always
+   net: "host"
+   privileged: true
+   volumes_from:
+    - ovsdbserverdata
+
+neutronopenvswitchagent:
+   image: kollaglue/centos-rdo-neutron-openvswitch-agent:kilo
+   name: neutronopenvswitchagent
+   net: "host"
+   restart: always
+   privileged: true
+   env_file:
+     - openstack.env
+   volumes_from:
+     - ovsdbserverdata
+
 neutronagents:
   image: kollaglue/centos-rdo-neutron-agents:latest
   name: neutron-agents
