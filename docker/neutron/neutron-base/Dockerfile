@@ -1,7 +1,11 @@
 FROM %%KOLLA_NAMESPACE%%/%%KOLLA_PREFIX%%base:%%KOLLA_TAG%%
 MAINTAINER Kolla Project (https://launchpad.net/kolla)
 
-RUN yum -y install openstack-neutron-ml2 && yum clean all
+RUN yum -y install openstack-nova-common \
+     python-keystoneclient \
+     python-cinderclient \
+     python-nova \
+     bridge-utils \
+     openvswitch && yum clean all
 
-RUN mkdir -p /opt/kolla
-COPY config-neutron.sh /opt/kolla/config-neutron.sh
+ADD config-nova.sh /opt/kolla/config-nova.sh
