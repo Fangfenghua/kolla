@@ -85,12 +85,45 @@ crudini --set $core_cfg \
         DEFAULT \
         nova_admin_password \
         "${NOVA_KEYSTONE_PASSWORD}"
-
+#ml2
 if [[ ${MECHANISM_DRIVERS} =~ linuxbridge ]]; then
   crudini --set $ml2_cfg \
           linux_bridge \
           physical_interface_mappings \
           "${NEUTRON_FLAT_NETWORK_NAME}:${NEUTRON_FLAT_NETWORK_INTERFACE}"
+elif  [[ ${MECHANISM_DRIVERS} =~ openvswitch ]]; then
+  crudini --set $ml2_cfg \
+          ml2 \
+          type_drivers \
+          "${TYPE_DRIVERS}"
+  crudini --set $ml2_cfg \
+          ml2 \
+          tenant_network_types \
+          "${TENANT_NETWORK_TYPES}"
+  crudini --set $ml2_cfg \
+          ml2 \
+          mechanism_drivers \
+          "${MECHANISM_DRIVERS}"
+  crudini --set $ml2_cfg \
+          ml2_type_flat \
+          flat_networks \
+          "${NEUTRON_FLAT_NETWORK_NAME}"
+  crudini --set $ml2_cfg \
+          ml2_type_vlan \
+          vlan_networks \
+          "${NEUTRON_FLAT_NETWORK_NAME}:${NEUTRON_VLAN_RANGE}"
+  crudini --set $ml2_cfg \
+          securitygroup \
+          enable_security_group \
+          "${NEUTRON_ENABLE_SECURITYGROUP}"
+  crudini --set $ml2_cfg \
+          securitygroup \
+          firewall_driver  \
+          "neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver"
+  crudini --set $ml2_cfg \
+          ml2_type_vxlan \
+          vni_ranges \
+          "5000:10000"
 fi
 
 su -s /bin/bash -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
