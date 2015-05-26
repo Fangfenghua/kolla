@@ -193,14 +193,14 @@ crudini --set $ml2_cfg \
 
 if [[ ${MECHANISM_DRIVERS} =~ linuxbridge ]]; then
   firewall_driver="neutron.agent.linux.iptables_firewall.IptablesFirewallDriver"
-elif [[ ${MECHANISM_DRIVERS} == "openvswitch" ]]; then
+elif [[ ${MECHANISM_DRIVERS} =~ "openvswitch" ]]; then
   firewall_driver="neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver"
 fi
 
-  crudini --set $ml2_cfg \
-          securitygroup \
-          firewall_driver \
-          "$firewall_driver"
+crudini --set $ml2_cfg \
+        securitygroup \
+        firewall_driver \
+        "$firewall_driver"
 
 cat > /openrc <<EOF
 export OS_AUTH_URL="http://${KEYSTONE_PUBLIC_SERVICE_HOST}:${KEYSTONE_PUBLIC_SERVICE_PORT}/v2.0"
