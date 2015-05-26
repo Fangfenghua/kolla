@@ -1,16 +1,21 @@
-FROM %%KOLLA_NAMESPACE%%/%%KOLLA_PREFIX%%neutron-base:%%KOLLA_TAG%%
-MAINTAINER Kolla Project (https://launchpad.net/kolla)
-
 # Install supervisor
-RUN easy_install supervisor
+RUN export http_proxy=http://3.6.1.35:808 \
+    && export https_proxy=http://3.6.1.35:808 \
+    && pip install supervisor \
+    && pip install supervisor-stdout
+
+RUN export http_proxy=http://3.6.1.35:808 \
+    && export https_proxy=http://3.6.1.35:808 \
+    && yum install -y openstack-neutron net-tools \
+    && yum clean all
 
 # Install supervisor-stdout
-RUN pip install supervisor-stdout
+#RUN pip install supervisor-stdout
 
 # Install required packages
-RUN yum install -y openstack-neutron openstack-neutron-linuxbridge \
-        net-tools \
-        && yum clean all
+#RUN yum install -y openstack-neutron openstack-neutron-linuxbridge \
+#        net-tools \
+#        && yum clean all
 
 # Add config scripts
 ADD config-scripts/config-linuxbridge-agent.sh /opt/kolla/neutron/
@@ -31,9 +36,18 @@ ADD check-scripts/check-metadata-agent.sh /opt/kolla/neutron/
 # we are out of time.
 COPY fwaas_driver.ini /etc/neutron/
 
+
 # Configure supervisord
 RUN mkdir -p /var/log/supervisor/
 ADD supervisord.conf /etc/
 
+RUN export http_proxy=http://3.6.1.35:808 \
+    && export https_proxy=http://3.6.1.35:808 \
+    && yum clean all \
+    && yum install -y openvswitch \
+    && yum clean all
+
+
+COPY ./start.sh  /start.sh
 # Start supervisor
-CMD ["/usr/bin/supervisord"]
+CMD ["/start.sh"]
